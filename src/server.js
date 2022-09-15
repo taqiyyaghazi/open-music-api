@@ -1,12 +1,14 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
-const albums = require('./api/albums');
+const ClientError = require('./exceptions/ClientError');
 const songs = require('./api/songs');
-const AlbumsService = require('./services/postgres/AlbumsService');
 const SongsService = require('./services/postgres/SongsService');
-const AlbumsValidator = require('./validator/albums');
 const SongsValidator = require('./validator/songs');
+
+const albums = require('./api/albums');
+const AlbumsService = require('./services/postgres/AlbumsService');
+const AlbumsValidator = require('./validator/albums');
 
 const init = async () => {
   const albumsService = new AlbumsService();
@@ -22,21 +24,38 @@ const init = async () => {
     },
   });
 
-  await server.register({
-    plugin: albums,
-    options: {
-      albumsService,
-      songsService,
-      validator: AlbumsValidator,
+  await server.register([
+    {
+      plugin: albums,
+      options: {
+        albumsService,
+        songsService,
+        validator: AlbumsValidator,
+      },
     },
-  });
+    {
+      plugin: songs,
+      options: {
+        service: songsService,
+        validator: SongsValidator,
+      },
+    },
+  ]);
 
-  await server.register({
-    plugin: songs,
-    options: {
-      service: songsService,
-      validator: SongsValidator,
-    },
+  server.ext('onPreResponse', (request, h) => {
+    // mendapatkan konteks response dari request
+    const { response } = request;
+    if (response instanceof ClientError) {
+      // membuat response baru dari response toolkit sesuai kebutuhan error handling
+      const newResponse = h.response({
+        status: 'fail',
+        message: response.message,
+      });
+      newResponse.code(response.statusCode);
+      return newResponse;
+    }
+    // jika bukan ClientError, lanjutkan dengan response sebelumnya (tanpa terintervensi)
+    return response.continue || response;
   });
 
   await server.start();
