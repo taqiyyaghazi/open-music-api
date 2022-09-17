@@ -30,12 +30,23 @@ const AuthenticationsService = require('./services/postgres/AuthenticationsServi
 const TokenManager = require('./tokenize/TokenManager');
 const AuthenticationsValidator = require('./validator/authentications');
 
+// colaborations
+const collaborations = require('./api/collaborations');
+const CollaborationsService = require('./services/postgres/CollaborationsService');
+const CollaborationsValidator = require('./validator/collaborations');
+
+// truncate
+const truncate = require('./api/truncate');
+const truncateValidator = require('./validator/truncate');
+const TruncateService = require('./services/postgres/TruncateDBService');
+
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
   const usersService = new UsersService();
-  const playlistsService = new PlaylistsService();
   const authenticationsService = new AuthenticationsService();
+  const collaborationsService = new CollaborationsService();
+  const playlistsService = new PlaylistsService({ collaborationsService, songsService });
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -108,13 +119,27 @@ const init = async () => {
         validator: AuthenticationsValidator,
       },
     },
+    {
+      plugin: collaborations,
+      options: {
+        collaborationsService,
+        playlistsService,
+        usersService,
+        validator: CollaborationsValidator,
+      },
+    },
+    {
+      plugin: truncate,
+      options: {
+        service: TruncateService,
+        validator: truncateValidator,
+      },
+    },
   ]);
 
   server.ext('onPreResponse', (request, h) => {
-    // mendapatkan konteks response dari request
     const { response } = request;
     if (response instanceof ClientError) {
-      // membuat response baru dari response toolkit sesuai kebutuhan error handling
       const newResponse = h.response({
         status: 'fail',
         message: response.message,
@@ -122,7 +147,6 @@ const init = async () => {
       newResponse.code(response.statusCode);
       return newResponse;
     }
-    // jika bukan ClientError, lanjutkan dengan response sebelumnya (tanpa terintervensi)
     return response.continue || response;
   });
 

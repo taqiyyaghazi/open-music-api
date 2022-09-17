@@ -45,9 +45,9 @@ class UsersService {
     }
   }
 
-  async getUserById(userId) {
+  async verifyExistingUserById(userId) {
     const query = {
-      text: 'SELECT id, username, fullname FROM users WHERE id = $1',
+      text: 'SELECT id FROM users WHERE id = $1',
       values: [userId],
     };
 

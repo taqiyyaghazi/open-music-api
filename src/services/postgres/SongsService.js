@@ -84,8 +84,21 @@ class SongsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Song gagal dihapus. Id tidak ditemukan');
+    }
+  }
+
+  async verifyExistingSongById(id) {
+    const query = {
+      text: 'SELECT * FROM songs WHERE id = $1',
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError('Id musik tidak ditemukan');
     }
   }
 }
