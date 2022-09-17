@@ -35,11 +35,6 @@ const collaborations = require('./api/collaborations');
 const CollaborationsService = require('./services/postgres/CollaborationsService');
 const CollaborationsValidator = require('./validator/collaborations');
 
-// truncate
-const truncate = require('./api/truncate');
-const truncateValidator = require('./validator/truncate');
-const TruncateService = require('./services/postgres/TruncateDBService');
-
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
@@ -126,13 +121,6 @@ const init = async () => {
         playlistsService,
         usersService,
         validator: CollaborationsValidator,
-      },
-    },
-    {
-      plugin: truncate,
-      options: {
-        service: TruncateService,
-        validator: truncateValidator,
       },
     },
   ]);
