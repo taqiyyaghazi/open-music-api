@@ -17,4 +17,16 @@ const mapGetSong = ({
   albumId: album_id,
 });
 
-module.exports = { mapGetSong };
+const mapGetAlbum = ({
+  id,
+  name,
+  year,
+  cover_url,
+}) => ({
+  id,
+  name,
+  year,
+  coverUrl: cover_url,
+});
+
+module.exports = { mapGetSong, mapGetAlbum };
