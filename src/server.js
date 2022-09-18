@@ -48,10 +48,19 @@ const uploads = require('./api/uploads');
 const StorageService = require('./services/storage/StorageService');
 const UploadsValidator = require('./validator/uploads');
 
+// likes
+const likes = require('./api/likes');
+const LikesService = require('./services/postgres/LikesService');
+
+// cache
+const CacheService = require('./services/redis/CacheService');
+
 const init = async () => {
+  const cacheService = new CacheService();
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
   const usersService = new UsersService();
+  const likesService = new LikesService(cacheService);
   const authenticationsService = new AuthenticationsService();
   const collaborationsService = new CollaborationsService();
   const playlistsService = new PlaylistsService({
@@ -159,6 +168,12 @@ const init = async () => {
         service: storageService,
         albumsService,
         validator: UploadsValidator,
+      },
+    },
+    {
+      plugin: likes,
+      options: {
+        service: likesService,
       },
     },
   ]);
