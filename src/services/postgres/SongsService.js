@@ -29,15 +29,10 @@ class SongsService {
   }
 
   async getSongs({ title, performer }) {
-    try {
-      const { rows } = await this._pool.query(
-        `SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE LOWER('%${title}%') AND LOWER(performer) LIKE LOWER('%${performer}%')`,
-      );
-      return rows;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
+    const { rows } = await this._pool.query(
+      `SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE LOWER('%${title}%') AND LOWER(performer) LIKE LOWER('%${performer}%')`,
+    );
+    return rows;
   }
 
   async getSongById(id) {
