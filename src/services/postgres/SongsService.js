@@ -1,13 +1,12 @@
 /* eslint-disable no-underscore-dangle */
-const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const { mapGetSong } = require('../../utils');
 
 class SongsService {
-  constructor() {
-    this._pool = new Pool();
+  constructor(pool) {
+    this._pool = pool;
   }
 
   async addSong({
@@ -30,10 +29,15 @@ class SongsService {
   }
 
   async getSongs({ title, performer }) {
-    const { rows } = await this._pool.query(
-      `SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE LOWER('%${title}%') AND LOWER(performer) LIKE LOWER('%${performer}%')`,
-    );
-    return rows;
+    try {
+      const { rows } = await this._pool.query(
+        `SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE LOWER('%${title}%') AND LOWER(performer) LIKE LOWER('%${performer}%')`,
+      );
+      return rows;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   }
 
   async getSongById(id) {

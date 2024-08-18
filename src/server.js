@@ -5,6 +5,7 @@ const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 const Inert = require('@hapi/inert');
 const path = require('path');
+const { Pool } = require('pg');
 const ClientError = require('./exceptions/ClientError');
 
 // songs
@@ -56,14 +57,19 @@ const LikesService = require('./services/postgres/LikesService');
 const CacheService = require('./services/redis/CacheService');
 
 const init = async () => {
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: false,
+  });
   const cacheService = new CacheService();
-  const albumsService = new AlbumsService();
-  const songsService = new SongsService();
-  const usersService = new UsersService();
-  const likesService = new LikesService(cacheService);
-  const authenticationsService = new AuthenticationsService();
-  const collaborationsService = new CollaborationsService();
+  const albumsService = new AlbumsService(pool);
+  const songsService = new SongsService(pool);
+  const usersService = new UsersService(pool);
+  const likesService = new LikesService({ pool, cacheService });
+  const authenticationsService = new AuthenticationsService(pool);
+  const collaborationsService = new CollaborationsService(pool);
   const playlistsService = new PlaylistsService({
+    pool,
     collaborationsService,
     songsService,
   });

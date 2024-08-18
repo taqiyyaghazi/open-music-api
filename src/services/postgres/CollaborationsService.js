@@ -1,11 +1,10 @@
 /* eslint-disable no-underscore-dangle */
-const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 
 class CollaborationsService {
-  constructor() {
-    this._pool = new Pool();
+  constructor(pool) {
+    this._pool = pool;
   }
 
   async addCollaboration(playlistId, userId) {

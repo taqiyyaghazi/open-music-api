@@ -1,12 +1,11 @@
 /* eslint-disable no-underscore-dangle */
-const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
 class AlbumLikesService {
-  constructor(cacheService) {
-    this._pool = new Pool();
+  constructor({ pool, cacheService }) {
+    this._pool = pool;
     this._cacheService = cacheService;
   }
 

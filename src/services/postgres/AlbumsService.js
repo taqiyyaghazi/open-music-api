@@ -1,13 +1,12 @@
 /* eslint-disable no-underscore-dangle */
-const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const { mapGetAlbum } = require('../../utils');
 
 class AlbumsService {
-  constructor() {
-    this._pool = new Pool();
+  constructor(pool) {
+    this._pool = pool;
   }
 
   async addAlbum({ name, year }) {

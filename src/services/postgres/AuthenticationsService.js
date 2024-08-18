@@ -1,10 +1,9 @@
 /* eslint-disable no-underscore-dangle */
-const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 
 class AuthenticationsService {
-  constructor() {
-    this._pool = new Pool();
+  constructor(pool) {
+    this._pool = pool;
   }
 
   async addRefreshToken(token) {
